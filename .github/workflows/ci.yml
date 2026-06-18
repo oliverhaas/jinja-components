@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+      - run: uv python install 3.14
+      - run: uv sync --group dev
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run ty check jinja_components/
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.14"]   # TODO: add "3.14t" once free-threaded dep compat is verified
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv sync --group dev
+      - run: uv run pytest -n auto
