@@ -3,18 +3,17 @@ name = "jinja-components"
 version = "0.1.0a1"
 description = "A small, class-based component system for Jinja2 with HTML-tag syntax and Vue-style slots."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.14"
 keywords = ["jinja2", "jinja", "components", "templates", "html", "slots"]
 authors = [{ name = "Oliver Haas", email = "ohaas@e1plus.de" }]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Environment :: Web Environment",
   "Framework :: Django",
   "Framework :: Django :: 6.0",
   "Framework :: Flask",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -22,7 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Typing :: Typed",
 ]
-dependencies = ["jinja2>=3.1"]
+dependencies = ["jinja2>=3.1", "markupsafe>=2.0"]
 
 [project.optional-dependencies]
 django = ["django>=6.0"]
@@ -36,12 +35,11 @@ dev = [
   "django>=6.0",
   "pre-commit==4.6.0",
   "pytest==9.1.0",
-  "pytest-asyncio==1.4.0",
   "pytest-cov==7.1.0",
   "pytest-django==4.12.0",
   "pytest-xdist==3.8.0",
-  "ruff==0.15.17",
-  "ty==0.0.50",
+  "ruff==0.15.18",
+  "ty==0.0.51",
 ]
 
 [build-system]
@@ -52,7 +50,7 @@ build-backend = "hatchling.build"
 packages = ["jinja_components"]
 
 [tool.hatch.build.targets.sdist]
-include = ["jinja_components", "LICENSE", "README.md"]
+include = ["jinja_components", "CHANGELOG.md", "LICENSE", "README.md"]
 
 [tool.ruff]
 target-version = "py314"
@@ -85,6 +83,8 @@ python-version = "3.14"
 [[tool.ty.overrides]]
 include = ["tests/**"]
 [tool.ty.overrides.rules]
+invalid-assignment = "ignore"
+invalid-method-override = "ignore"
 unresolved-attribute = "ignore"
 
 [tool.pytest.ini_options]
@@ -96,6 +96,7 @@ pythonpath = ["tests"]
 markers = ["unit: fast, isolated unit tests"]
 
 [tool.coverage.run]
+branch = true
 omit = ["tests/*"]
 
 [tool.coverage.report]
