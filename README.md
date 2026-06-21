@@ -6,7 +6,7 @@
 
 A class-based component system for Jinja2. A component is a Python class paired
 with a co-located template. Components are authored in templates with
-HTML-element tags (`<Button/>`) and Vue-style slots.
+HTML-element tags (`<Button/>`) and native-style slots.
 
 The tag syntax is rewritten to plain Jinja2 at compile time, during the
 `preprocess` step, so rendered output goes through Jinja2's normal compiled and
@@ -112,8 +112,8 @@ register("Banner")(Alert)  # usable as both <Alert/> and <Banner/>
 
 ## Slots
 
-Slots use Vue's syntax. A component template declares slots; the call site fills
-them.
+Slots follow the native Web Components model. A component template declares slots;
+the call site fills them.
 
 Declare slots in the component template with `<slot>`. Content between the tags
 is the fallback shown when the slot is not filled:
@@ -129,18 +129,31 @@ is the fallback shown when the slot is not filled:
 
 `<slot></slot>` with no name is the default slot, equivalent to `{{ content }}`.
 
-Fill named slots at the call site with `<template #name>`. Everything outside a
-`<template>` tag becomes the default slot:
+Fill named slots at the call site with the `slot` attribute, the same way native
+Web Components assign slots. The element carrying `slot="name"` is projected into
+the matching `<slot name="name">`; anything without a `slot` attribute becomes the
+default slot:
 
 ```html
 <Card>
-  <template #header>Invoice #42</template>
+  <h2 slot="header">Invoice #42</h2>
   Thanks for your order.
-  <template #footer>Paid in full</template>
+  <p slot="footer">Paid in full</p>
 </Card>
 ```
 
-Components can be nested inside slot fills.
+To fill a slot without an extra wrapper element (plain text, or several nodes),
+use `<template slot="name">`. Its inner HTML is projected and the wrapper is
+dropped:
+
+```html
+<Card>
+  <template slot="footer">Paid <b>in full</b></template>
+</Card>
+```
+
+Components can be slotted directly (`<Badge slot="header"/>`) and nested inside
+fills. Multiple elements sharing a `slot` name fill it in document order.
 
 ## Django
 
@@ -204,8 +217,15 @@ A component's `get_context_data` can reach the current request through
   Django context-processor values (`csrf_input`, `messages`, `perms`) are not
   auto-propagated; pass what a component needs explicitly via `get_context_data`
   or environment globals.
-- Filling the same named slot twice keeps only the last fill; earlier
-  `<template #name>` blocks for that name are discarded.
+- Only a component's direct children are slotted, matching native slot
+  assignment. A `slot=` on a deeper element stays part of the surrounding
+  content rather than filling a slot of the outer component.
+- Slot names must be literal. `slot="header"` assigns a slot, but a bound
+  `:slot="x"` is passed through as an ordinary prop; dynamic slot targets are
+  not supported.
+- The `:` and mustache binding forms are mutually exclusive. A `:`-bound value
+  is already an expression, so it must not contain `{{ }}` (`:value="{{ x }}"`
+  raises); write `:value="x"` or `value="{{ x }}"` instead.
 
 ## License
 
